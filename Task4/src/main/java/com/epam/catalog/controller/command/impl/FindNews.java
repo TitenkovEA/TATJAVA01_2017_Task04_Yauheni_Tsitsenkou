@@ -17,6 +17,8 @@ import java.util.Map;
 public class FindNews implements Command {
     private static final Logger logger = LogManager.getLogger(FindNews.class);
 
+    private static final String ERROR_MESSAGE = "Error during searching!";
+
     public String execute(Map<String, String> request) {
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         News newNews = new News();
@@ -31,8 +33,8 @@ public class FindNews implements Command {
 
             response = newsService.findNews(newNews);
         } catch (ServiceException | NullPointerException | IllegalArgumentException e) {
-            response = "Error during searching!";
-            logger.error(e.getMessage());
+            response = ERROR_MESSAGE;
+            logger.error(e);
         }
 
         return response;

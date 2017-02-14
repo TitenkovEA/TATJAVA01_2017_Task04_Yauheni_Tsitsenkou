@@ -17,10 +17,11 @@ import java.util.List;
 public class ImplNewsService implements NewsService {
     private static final Logger logger = LogManager.getLogger(ImplNewsService.class);
 
+    private static final String INCORRECT_NEWS_ERROR = "Incorrect news. NullPointer error!";
+
     public void addNews(News news) throws ServiceException {
         if (news.getCategory() == null || news.getTitle() == null || news.getAuthor() == null ) {
-            logger.error("Incorrect news. NullPointer error!");
-            throw new ServiceException("Incorrect news. NullPointer error!");
+            throw new ServiceException(INCORRECT_NEWS_ERROR);
         }
 
         DAOFactory daoFactory = DAOFactory.getInstance();
@@ -29,15 +30,14 @@ public class ImplNewsService implements NewsService {
             NewsDAO newsDAO = daoFactory.getNewsDAO();
             newsDAO.addNews(news);
         } catch (DAOException e) {
-            logger.error(e.getMessage());
+            logger.error(e);
             throw new ServiceException(e);
         }
     }
 
     public String findNews(News news) throws ServiceException {
         if (news.getCategory() == null || news.getTitle() == null || news.getAuthor() == null ) {
-            logger.error("Incorrect news. NullPointer error!");
-            throw new ServiceException("Incorrect news. NullPointer error!");
+            throw new ServiceException(INCORRECT_NEWS_ERROR);
         }
 
         List<News> foundedNews = null;
@@ -50,8 +50,8 @@ public class ImplNewsService implements NewsService {
             for (News newsUnit : foundedNews) {
                 result.append(newsUnit.toString()).append("\n");
             }
-        } catch (DAOException | NullPointerException e) {
-            logger.error(e.getMessage());
+        } catch (DAOException e) {
+            logger.error(e);
             throw new ServiceException(e);
         }
 

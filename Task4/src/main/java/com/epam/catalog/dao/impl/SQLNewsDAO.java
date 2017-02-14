@@ -25,6 +25,10 @@ public class SQLNewsDAO implements NewsDAO {
     private static final String CATEGORY_COLUMN = "category";
     private static final String TITLE_COLUMN = "title";
     private static final String AUTHOR_COLUMN = "author";
+    private static final char SIGN_TO_DEFINE_WILDCARDS = '%';
+
+    private static final String NULLPOINTER_ERROR = "NullPointer error!";
+    private static final String EXECUTION_ERROR = "Error while executing query!";
 
     private static final String SQL_ADD_NEWS_QUERY = "INSERT INTO news (category, title, author) VALUES (?, ?, ?)";
     private static final String SQL_FIND_NEWS_QUERY = "SELECT * FROM news WHERE category LIKE ? " +
@@ -34,8 +38,7 @@ public class SQLNewsDAO implements NewsDAO {
     public void addNews(News news) throws DAOException {
         if (news == null || news.getCategory() == null ||
                 news.getTitle() == null || news.getAuthor() == null ) {
-            logger.error("NullPointer error!");
-            throw new DAOException("NullPointer error!");
+            throw new DAOException(NULLPOINTER_ERROR);
         }
 
         ConnectionPool connectionPool = null;
@@ -51,17 +54,17 @@ public class SQLNewsDAO implements NewsDAO {
             preparedStatement.setString(3, news.getAuthor());
 
             if (!preparedStatement.execute()) {
-                logger.error("ERROR");
-                throw new DAOException();
+                throw new DAOException(EXECUTION_ERROR);
             }
         } catch (ConnectionPoolException | SQLException e) {
-            logger.error(e.getStackTrace());
+            logger.error(e);
+            throw new DAOException(EXECUTION_ERROR, e);
         } finally {
             if (connection != null) {
                 try {
                     connection.close();
                 } catch (SQLException e) {
-                    logger.error(e.getStackTrace());
+                    logger.error(e);
                 }
             }
         }
@@ -70,8 +73,7 @@ public class SQLNewsDAO implements NewsDAO {
     public List<News> findNews(News news) throws DAOException {
         if (news == null || news.getCategory() == null ||
                 news.getTitle() == null || news.getAuthor() == null ) {
-            logger.error("NullPointer error!");
-            throw new DAOException("NullPointer error!");
+            throw new DAOException(NULLPOINTER_ERROR);
         }
 
         ArrayList<News> newsList = new ArrayList<>();
@@ -84,22 +86,26 @@ public class SQLNewsDAO implements NewsDAO {
             connection = connectionPool.takeConnection();
 
             preparedStatement = connection.prepareStatement(SQL_FIND_NEWS_QUERY);
-            preparedStatement.setString(1,"%" + news.getCategory().toString() + "%");
-            preparedStatement.setString(2,"%" + news.getTitle() + "%");
-            preparedStatement.setString(3,"%" + news.getAuthor() + "%");
+            preparedStatement.setString(1,
+                    SIGN_TO_DEFINE_WILDCARDS + news.getCategory().toString() + SIGN_TO_DEFINE_WILDCARDS);
+            preparedStatement.setString(2,
+                    SIGN_TO_DEFINE_WILDCARDS + news.getTitle() + SIGN_TO_DEFINE_WILDCARDS);
+            preparedStatement.setString(3,
+                    SIGN_TO_DEFINE_WILDCARDS + news.getAuthor() + SIGN_TO_DEFINE_WILDCARDS);
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 newsList.add(getNewsFromResultSetRow(resultSet));
             }
         } catch (ConnectionPoolException | SQLException e) {
-            logger.error(e.getStackTrace());
+            logger.error(e);
+            throw new DAOException(EXECUTION_ERROR, e);
         } finally {
             if (connection != null) {
                 try {
                     connection.close();
                 } catch (SQLException e) {
-                   // logger.error(e.getStackTrace());
+                    logger.error(e);
                 }
             }
         }

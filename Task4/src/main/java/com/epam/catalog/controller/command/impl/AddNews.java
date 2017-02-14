@@ -17,6 +17,9 @@ import java.util.Map;
 public class AddNews implements Command {
     private static final Logger logger = LogManager.getLogger(AddNews.class);
 
+    private static final String ERROR_MESSAGE = "Error during addition!";
+    private static final String SUCCESS_MESSAGE = "The news has been added";
+
     public String execute(Map<String, String> request) {
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         News newNews = new News();
@@ -31,10 +34,10 @@ public class AddNews implements Command {
 
             newsService.addNews(newNews);
 
-            response = "The news has been added";
+            response = SUCCESS_MESSAGE;
         } catch (ServiceException | NullPointerException | IllegalArgumentException e) {
-            response = "Error during addition!";
-            logger.error(e.getMessage());
+            response = ERROR_MESSAGE;
+            logger.error(e);
         }
 
         return response;

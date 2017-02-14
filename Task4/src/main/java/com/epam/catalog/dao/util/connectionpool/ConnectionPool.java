@@ -3,6 +3,8 @@ package com.epam.catalog.dao.util.connectionpool;
 import com.epam.catalog.dao.util.connectionpool.exception.ConnectionPoolException;
 import com.epam.catalog.dao.util.dbresource.DBParameter;
 import com.epam.catalog.dao.util.dbresource.DBResourceManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.Locale;
@@ -16,6 +18,16 @@ import java.util.concurrent.Executor;
  * Created by Yauheni_Tsitsenkou on 2/13/2017.
  */
 public class ConnectionPool {
+    private static final Logger logger = LogManager.getLogger(ConnectionPool.class);
+
+    private static final String SQL_EXCEPTION_MESSAGE = "SQLException in ConnectionPool";
+    private static final String ERROR_CONNECTION_MESSAGE = "Error connection to the data source.";
+    private static final String ERROR_CLOSE_CLOSED_CONNECTION_MESSAGE = "Attempting to close closed connection.";
+    private static final String ERROR_DELETING_CONNECTION_MESSAGE =
+            "Error deleting connection from the given away connection pool.";
+
+    private static final String ERROR_ALLOCATION_CONNECTION_MESSAGE = "Error allocation connection in the pool.";
+
     private static final ConnectionPool instance = new ConnectionPool();
 
     private BlockingQueue<Connection> connectionQueue;
@@ -47,8 +59,8 @@ public class ConnectionPool {
         Locale.setDefault(Locale.ENGLISH);
 
         try {
-            givenAwayConQueue = new ArrayBlockingQueue<Connection>(poolSize);
-            connectionQueue = new ArrayBlockingQueue<Connection>(poolSize);
+            givenAwayConQueue = new ArrayBlockingQueue<>(poolSize);
+            connectionQueue = new ArrayBlockingQueue<>(poolSize);
 
             for (int i = 0; i < poolSize; i++) {
                 Connection connection = DriverManager.getConnection(url, user, password);
@@ -56,16 +68,18 @@ public class ConnectionPool {
                 connectionQueue.add(pooledConnection);
             }
         } catch (SQLException e) {
-            throw new ConnectionPoolException("SQLException in ConnectionPool", e);
+            logger.error(e);
+            throw new ConnectionPoolException(SQL_EXCEPTION_MESSAGE, e);
         }
     }
 
-    public void clearConnectionQueue() {
+    public void clearConnectionQueue() throws ConnectionPoolException {
         try {
             closeConnectionsQueue(givenAwayConQueue);
             closeConnectionsQueue(connectionQueue);
         } catch (SQLException e) {
-            // TODO: 2/13/2017 exception
+            logger.error(e);
+            throw new ConnectionPoolException(SQL_EXCEPTION_MESSAGE, e);
         }
     }
 
@@ -75,7 +89,8 @@ public class ConnectionPool {
             connection = connectionQueue.take();
             givenAwayConQueue.add(connection);
         } catch (InterruptedException e) {
-            throw new ConnectionPoolException("Error connection to the data source.", e);
+            logger.error(e);
+            throw new ConnectionPoolException(ERROR_CONNECTION_MESSAGE, e);
         }
         return connection;
     }
@@ -93,12 +108,12 @@ public class ConnectionPool {
     private class PooledConnection implements Connection {
         private Connection connection;
 
-        public PooledConnection(Connection connection) throws SQLException {
+        PooledConnection(Connection connection) throws SQLException {
             this.connection = connection;
             this.connection.setAutoCommit(true);
         }
 
-        public void reallyClose() throws SQLException {
+        void reallyClose() throws SQLException {
             connection.close();
         }
 
@@ -145,7 +160,7 @@ public class ConnectionPool {
         @Override
         public void close() throws SQLException {
             if (connection.isClosed()) {
-                throw new SQLException("Attempting to close closed connection.");
+                throw new SQLException(ERROR_CLOSE_CLOSED_CONNECTION_MESSAGE);
             }
 
             if (connection.isReadOnly()) {
@@ -153,11 +168,11 @@ public class ConnectionPool {
             }
 
             if (!givenAwayConQueue.remove(this)) {
-                throw new SQLException("Error deleting connection from the given away connection pool.");
+                throw new SQLException(ERROR_DELETING_CONNECTION_MESSAGE);
             }
 
             if (!connectionQueue.offer(this)) {
-                throw new SQLException("Error allocation connection in the pool.");
+                throw new SQLException(ERROR_ALLOCATION_CONNECTION_MESSAGE);
             }
         }
 

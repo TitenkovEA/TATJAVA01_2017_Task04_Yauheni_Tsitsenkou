@@ -1,6 +1,8 @@
 package com.epam.catalog.dao.factory;
 
+import com.epam.catalog.dao.DAOResourceManager;
 import com.epam.catalog.dao.NewsDAO;
+import com.epam.catalog.dao.impl.DAOResourceManagerImpl;
 import com.epam.catalog.dao.impl.SQLNewsDAO;
 
 /**
@@ -10,6 +12,7 @@ public class DAOFactory {
     private static final DAOFactory instance = new DAOFactory();
 
     private final NewsDAO txtNewsDAO = new SQLNewsDAO();
+    private final DAOResourceManager daoResourceManager = new DAOResourceManagerImpl();
 
     private DAOFactory() {
     }
@@ -20,5 +23,9 @@ public class DAOFactory {
 
     public NewsDAO getNewsDAO() {
         return txtNewsDAO;
+    }
+
+    public DAOResourceManager getDaoResourceManager() {
+        return daoResourceManager;
     }
 }

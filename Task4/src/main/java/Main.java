@@ -1,4 +1,3 @@
-import com.epam.catalog.dao.util.connectionpool.ConnectionPool;
 import com.epam.catalog.dao.util.connectionpool.exception.ConnectionPoolException;
 import com.epam.catalog.view.View;
 
@@ -6,13 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Evgeny on 05.02.2017.
+ * Created by Evgeny on 14.02.2017.
  */
 public class Main {
     public static void main(String[] args) throws ConnectionPoolException {
-        ConnectionPool.getInstance().initPoolData();
-
         View view = new View();
+        view.startSession();
 
         Map<String, String> request = new HashMap<>();
         request.put("COMMAND_NAME", "add_news");
@@ -31,6 +29,6 @@ public class Main {
         request.clear();
         view.sendRequest(request);
 
-        ConnectionPool.getInstance().clearConnectionQueue();
+        view.endSession();
     }
 }

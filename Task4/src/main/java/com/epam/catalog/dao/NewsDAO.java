@@ -10,5 +10,6 @@ import java.util.List;
  */
 public interface NewsDAO {
     void addNews(News news) throws DAOException;
+
     List<News> findNews(News news) throws DAOException;
 }

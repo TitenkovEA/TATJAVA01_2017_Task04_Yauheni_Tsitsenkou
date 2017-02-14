@@ -8,5 +8,6 @@ import com.epam.catalog.service.exception.ServiceException;
  */
 public interface NewsService {
     void addNews(News news) throws ServiceException;
+
     String findNews(News news) throws ServiceException;
 }

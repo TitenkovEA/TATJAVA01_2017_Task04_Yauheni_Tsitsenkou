@@ -5,7 +5,6 @@ package com.epam.catalog.dao.util.dbresource;
  */
 public class DBParameter {
     private DBParameter() {
-
     }
 
     public static final String DB_URL = "db.url";

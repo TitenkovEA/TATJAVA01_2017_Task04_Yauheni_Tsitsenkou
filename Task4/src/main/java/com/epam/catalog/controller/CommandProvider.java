@@ -33,7 +33,7 @@ class CommandProvider {
             command = commandMap.get(commandName);
         } catch (NullPointerException | IllegalArgumentException e) {
             command = commandMap.get(CommandName.WRONG_REQUEST);
-            logger.error(e.getMessage());
+            logger.error(e);
         }
 
         return command;
