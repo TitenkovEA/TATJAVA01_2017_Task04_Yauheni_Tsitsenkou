@@ -1,7 +1,7 @@
 package com.epam.catalog.controller.command.impl;
 
-import com.epam.catalog.been.Category;
-import com.epam.catalog.been.News;
+import com.epam.catalog.bean.Category;
+import com.epam.catalog.bean.News;
 import com.epam.catalog.controller.command.Command;
 import com.epam.catalog.service.NewsService;
 import com.epam.catalog.service.exception.ServiceException;
@@ -18,16 +18,15 @@ public class AddNews implements Command {
     private static final Logger logger = LogManager.getLogger(AddNews.class);
 
     private static final String ERROR_MESSAGE = "Error during addition!";
-    private static final String SUCCESS_MESSAGE = "The news has been added";
+    private static final String SUCCESS_MESSAGE = "The news has bean added";
 
     public String execute(Map<String, String> request) {
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
+        NewsService newsService = serviceFactory.getNewsService();
         News newNews = new News();
         String response = null;
 
         try {
-            NewsService newsService = serviceFactory.getNewsService();
-
             newNews.setCategory(Category.valueOf(request.get(CATEGORY).toUpperCase()));
             newNews.setTitle(request.get(TITLE));
             newNews.setAuthor(request.get(AUTHOR));

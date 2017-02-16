@@ -1,7 +1,9 @@
 package com.epam.catalog.service;
 
-import com.epam.catalog.been.News;
+import com.epam.catalog.bean.News;
 import com.epam.catalog.service.exception.ServiceException;
+
+import java.util.List;
 
 /**
  * Created by Yauheni_Tsitsenkou on 2/1/2017.
@@ -9,5 +11,5 @@ import com.epam.catalog.service.exception.ServiceException;
 public interface NewsService {
     void addNews(News news) throws ServiceException;
 
-    String findNews(News news) throws ServiceException;
+    List<News> findNews(News news) throws ServiceException;
 }

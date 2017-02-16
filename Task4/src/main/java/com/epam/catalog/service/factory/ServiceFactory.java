@@ -2,7 +2,7 @@ package com.epam.catalog.service.factory;
 
 import com.epam.catalog.service.NewsService;
 import com.epam.catalog.service.ResourceManagerService;
-import com.epam.catalog.service.impl.ImplNewsService;
+import com.epam.catalog.service.impl.NewsServiceImpl;
 import com.epam.catalog.service.impl.ResourceManagerServiceImpl;
 
 /**
@@ -11,7 +11,7 @@ import com.epam.catalog.service.impl.ResourceManagerServiceImpl;
 public class ServiceFactory {
     private static final ServiceFactory instance = new ServiceFactory();
 
-    private final NewsService implNewsService = new ImplNewsService();
+    private final NewsService implNewsService = new NewsServiceImpl();
     private final ResourceManagerService resourceManagerService = new ResourceManagerServiceImpl();
 
     private ServiceFactory() {

@@ -29,6 +29,7 @@ public final class Controller {
     public void initResource() {
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         ResourceManagerService resourceManagerService = serviceFactory.getResourceManagerService();
+
         try {
             resourceManagerService.initDAOResource();
         } catch (ServiceException e) {
@@ -39,6 +40,7 @@ public final class Controller {
     public void clearResource() {
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         ResourceManagerService resourceManagerService = serviceFactory.getResourceManagerService();
+
         try {
             resourceManagerService.clearDAOResource();
         } catch (ServiceException e) {

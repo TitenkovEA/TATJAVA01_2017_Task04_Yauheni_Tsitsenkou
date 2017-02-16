@@ -1,4 +1,4 @@
-package com.epam.catalog.been;
+package com.epam.catalog.bean;
 
 import java.io.Serializable;
 

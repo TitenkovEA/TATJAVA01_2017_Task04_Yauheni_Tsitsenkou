@@ -1,6 +1,6 @@
 package com.epam.catalog.dao;
 
-import com.epam.catalog.been.News;
+import com.epam.catalog.bean.News;
 import com.epam.catalog.dao.exception.DAOException;
 
 import java.util.List;

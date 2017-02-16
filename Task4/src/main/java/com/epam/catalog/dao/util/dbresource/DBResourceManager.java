@@ -1,6 +1,5 @@
 package com.epam.catalog.dao.util.dbresource;
 
-import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
@@ -9,7 +8,7 @@ import java.util.ResourceBundle;
 public class DBResourceManager {
     private final static DBResourceManager instance = new DBResourceManager();
 
-    private ResourceBundle bundle = ResourceBundle.getBundle("db", Locale.ENGLISH);
+    private ResourceBundle bundle = ResourceBundle.getBundle("db");
 
     private DBResourceManager() {
 

@@ -1,7 +1,7 @@
 package com.epam.catalog.dao.impl;
 
-import com.epam.catalog.been.Category;
-import com.epam.catalog.been.News;
+import com.epam.catalog.bean.Category;
+import com.epam.catalog.bean.News;
 import com.epam.catalog.dao.exception.DAOException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;

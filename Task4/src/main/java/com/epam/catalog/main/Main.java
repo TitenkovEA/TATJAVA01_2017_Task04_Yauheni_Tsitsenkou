@@ -1,3 +1,5 @@
+package com.epam.catalog.main;
+
 import com.epam.catalog.dao.util.connectionpool.exception.ConnectionPoolException;
 import com.epam.catalog.view.View;
 

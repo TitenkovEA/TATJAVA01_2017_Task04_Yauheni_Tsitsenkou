@@ -1,9 +1,10 @@
 package com.epam.catalog.dao.impl;
 
-import com.epam.catalog.been.Category;
-import com.epam.catalog.been.News;
+import com.epam.catalog.bean.Category;
+import com.epam.catalog.bean.News;
 import com.epam.catalog.dao.NewsDAO;
 import com.epam.catalog.dao.exception.DAOException;
+import com.epam.catalog.dao.util.JDBCResourceManager;
 import com.epam.catalog.dao.util.connectionpool.ConnectionPool;
 import com.epam.catalog.dao.util.connectionpool.exception.ConnectionPoolException;
 import org.apache.logging.log4j.LogManager;
@@ -14,6 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -25,67 +27,50 @@ public class SQLNewsDAO implements NewsDAO {
     private static final String CATEGORY_COLUMN = "category";
     private static final String TITLE_COLUMN = "title";
     private static final String AUTHOR_COLUMN = "author";
-    private static final char SIGN_TO_DEFINE_WILDCARDS = '%';
 
-    private static final String NULLPOINTER_ERROR = "NullPointer error!";
     private static final String EXECUTION_ERROR = "Error while executing query!";
 
-    private static final String SQL_ADD_NEWS_QUERY = "INSERT INTO news (category, title, author) VALUES (?, ?, ?)";
-    private static final String SQL_FIND_NEWS_QUERY = "SELECT * FROM news WHERE category LIKE ? " +
-            "AND title LIKE ? " +
-            "AND author LIKE ?";
+    private static final String SQL_ADD_NEWS_QUERY =
+            "INSERT INTO news (category, title, author) VALUES (?, ?, ?)";
+
+    private static final String SQL_FIND_NEWS_QUERY =
+            "SELECT * FROM news WHERE category LIKE ? AND title LIKE ? AND author LIKE ?";
+
+    private static final char SIGN_TO_DEFINE_WILDCARDS = '%';
 
     public void addNews(News news) throws DAOException {
-        if (news == null || news.getCategory() == null ||
-                news.getTitle() == null || news.getAuthor() == null ) {
-            throw new DAOException(NULLPOINTER_ERROR);
-        }
-
-        ConnectionPool connectionPool = null;
-        Connection connection = null;
+        ConnectionPool connectionPool = ConnectionPool.getInstance();
         PreparedStatement preparedStatement = null;
-        try {
-            connectionPool = ConnectionPool.getInstance();
-            connection = connectionPool.takeConnection();
 
+        try (Connection connection = connectionPool.takeConnection()) {
             preparedStatement = connection.prepareStatement(SQL_ADD_NEWS_QUERY);
+
             preparedStatement.setString(1, news.getCategory().toString());
             preparedStatement.setString(2, news.getTitle());
             preparedStatement.setString(3, news.getAuthor());
 
-            if (!preparedStatement.execute()) {
-                throw new DAOException(EXECUTION_ERROR);
-            }
+            preparedStatement.executeUpdate();
         } catch (ConnectionPoolException | SQLException e) {
             logger.error(e);
             throw new DAOException(EXECUTION_ERROR, e);
         } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    logger.error(e);
-                }
+            try {
+                JDBCResourceManager.closeJdbcResources(preparedStatement, null);
+            } catch (SQLException e) {
+                logger.error(e);
             }
         }
     }
 
     public List<News> findNews(News news) throws DAOException {
-        if (news == null || news.getCategory() == null ||
-                news.getTitle() == null || news.getAuthor() == null ) {
-            throw new DAOException(NULLPOINTER_ERROR);
-        }
-
-        ArrayList<News> newsList = new ArrayList<>();
-        ConnectionPool connectionPool = null;
-        Connection connection = null;
+        List<News> newsList = new LinkedList<>();
+        ConnectionPool connectionPool = ConnectionPool.getInstance();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        try {
-            connectionPool = ConnectionPool.getInstance();
-            connection = connectionPool.takeConnection();
 
+        try (Connection connection = connectionPool.takeConnection()) {
             preparedStatement = connection.prepareStatement(SQL_FIND_NEWS_QUERY);
+
             preparedStatement.setString(1,
                     SIGN_TO_DEFINE_WILDCARDS + news.getCategory().toString() + SIGN_TO_DEFINE_WILDCARDS);
             preparedStatement.setString(2,
@@ -101,16 +86,14 @@ public class SQLNewsDAO implements NewsDAO {
             logger.error(e);
             throw new DAOException(EXECUTION_ERROR, e);
         } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    logger.error(e);
-                }
+            try {
+                JDBCResourceManager.closeJdbcResources(preparedStatement, resultSet);
+            } catch (SQLException e) {
+                logger.error(e);
             }
         }
 
-        return newsList;
+        return new ArrayList<>(newsList);
     }
 
     private News getNewsFromResultSetRow(ResultSet resultSet) throws SQLException {
