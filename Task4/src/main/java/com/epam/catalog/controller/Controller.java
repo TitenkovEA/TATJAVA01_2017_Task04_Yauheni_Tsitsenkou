@@ -1,6 +1,7 @@
 package com.epam.catalog.controller;
 
 import com.epam.catalog.controller.command.Command;
+import com.epam.catalog.controller.exception.ControllerException;
 import com.epam.catalog.service.ResourceManagerService;
 import com.epam.catalog.service.exception.ServiceException;
 import com.epam.catalog.service.factory.ServiceFactory;
@@ -34,6 +35,7 @@ public final class Controller {
             resourceManagerService.initDAOResource();
         } catch (ServiceException e) {
             logger.error(e);
+            throw new ControllerException(e);
         }
     }
 
@@ -45,6 +47,7 @@ public final class Controller {
             resourceManagerService.clearDAOResource();
         } catch (ServiceException e) {
             logger.error(e);
+            throw new ControllerException(e);
         }
     }
 }

@@ -20,14 +20,13 @@ public class NewsServiceImpl implements NewsService {
     private static final String INCORRECT_NEWS_ERROR = "Incorrect news. NullPointer error!";
 
     public void addNews(News news) throws ServiceException {
-        if (news.getCategory() == null || news.getTitle() == null || news.getAuthor() == null ) {
+        if (isNull(news)) {
             throw new ServiceException(INCORRECT_NEWS_ERROR);
         }
 
         DAOFactory daoFactory = DAOFactory.getInstance();
-
+        NewsDAO newsDAO = daoFactory.getNewsDAO();
         try {
-            NewsDAO newsDAO = daoFactory.getNewsDAO();
             newsDAO.addNews(news);
         } catch (DAOException e) {
             logger.error(e);
@@ -36,14 +35,14 @@ public class NewsServiceImpl implements NewsService {
     }
 
     public List<News> findNews(News news) throws ServiceException {
-        if (news.getCategory() == null || news.getTitle() == null || news.getAuthor() == null ) {
+        if (isNull(news)) {
             throw new ServiceException(INCORRECT_NEWS_ERROR);
         }
 
-        List<News> foundedNews = null;
         DAOFactory daoFactory = DAOFactory.getInstance();
+        NewsDAO newsDAO = daoFactory.getNewsDAO();
+        List<News> foundedNews;
         try {
-            NewsDAO newsDAO = daoFactory.getNewsDAO();
             foundedNews = newsDAO.findNews(news);
         } catch (DAOException e) {
             logger.error(e);
@@ -51,5 +50,19 @@ public class NewsServiceImpl implements NewsService {
         }
 
         return foundedNews;
+    }
+
+    private boolean isNull(News news) {
+        boolean result = false;
+
+        if (news == null) {
+            result = true;
+        } else if (news.getCategory() == null ||
+                news.getTitle() == null ||
+                news.getAuthor() == null) {
+            result = true;
+        }
+
+        return result;
     }
 }

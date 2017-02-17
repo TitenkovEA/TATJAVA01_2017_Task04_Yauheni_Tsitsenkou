@@ -16,7 +16,7 @@ import java.util.Map;
 class CommandProvider {
     private static final Logger logger = LogManager.getLogger(CommandProvider.class);
 
-    private final Map<CommandName, Command> commandMap = new HashMap<>();
+    private static final Map<CommandName, Command> commandMap = new HashMap<>();
 
     CommandProvider() {
         commandMap.put(CommandName.ADD_NEWS, new AddNews());
